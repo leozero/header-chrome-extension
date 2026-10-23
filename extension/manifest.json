@@ -3,10 +3,15 @@
   "name": "Header Injector",
   "short_name": "Headers",
   "description": "Add, override or remove HTTP headers (Authorization, custom...) on hosts matching a regex.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "minimum_chrome_version": "121",
-  "permissions": ["declarativeNetRequest", "storage"],
-  "host_permissions": ["<all_urls>"],
+  "permissions": [
+    "declarativeNetRequest",
+    "storage"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
   "background": {
     "service_worker": "background.js",
     "type": "module"
