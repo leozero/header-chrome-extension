@@ -5,6 +5,7 @@ Chrome extension (Manifest V3) that **adds, overrides or removes HTTP headers** 
 - One rule = one hostname regex + a list of headers
 - Request **and** response headers, operations `set` / `append` / `remove`
 - Applies to everything: pages, `fetch`/XHR, images, scripts, iframes, websockets…
+- **Basic auth helper**: type a username / password, get `Authorization: Basic …` (UTF-8 safe)
 - Live regex validation and a URL tester right in the settings page
 - Popup: global on/off switch, per-rule toggles, rules matching the current site, "rule for this site" shortcut
 - Import / export as JSON
@@ -30,6 +31,8 @@ Click the toolbar icon → **Settings** (or **+ Rule for this site**), then:
 | --- | --- |
 | Hostname regex | `^api\.staging\.example\.com$` |
 | Header | `Request` · `Set` · `Authorization` · `Bearer eyJhbGciOi…` |
+
+For HTTP Basic auth, click **+ Basic auth** on a rule (or the key icon on an `Authorization` row) and enter the username and password: the value `Basic base64(username:password)` is generated for you, and the icon reopens the dialog pre-filled to change it. Base64 is an encoding, not encryption.
 
 The badge shows the number of active rules (`!` if one has an error, `OFF` when paused).
 
@@ -81,6 +84,7 @@ extension/
   lib/pattern.js       # hostname regex -> confined URL regex (RE2)
   lib/rules.js         # config -> DNR rules
   lib/config.js        # data model, storage
+  lib/basic-auth.js    # Basic auth encode / decode
   options/  popup/  ui/  icons/
 test/                  # unit tests
 scripts/               # packaging, versioning, icons

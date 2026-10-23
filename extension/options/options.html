@@ -108,7 +108,10 @@
             <span></span>
           </div>
           <div data-role="headers"></div>
-          <button class="btn add-header" type="button" data-action="add-header">+ Add header</button>
+          <div class="headers-actions">
+            <button class="btn add-header" type="button" data-action="add-header">+ Add header</button>
+            <button class="btn add-header" type="button" data-action="add-basic-auth">+ Basic auth</button>
+          </div>
         </div>
       </section>
     </template>
@@ -128,6 +131,9 @@
         <input type="text" class="mono" data-hfield="name" list="header-names" placeholder="Authorization" spellcheck="false" autocomplete="off" aria-label="Header name" />
         <div class="value-wrap">
           <input type="text" class="mono" data-hfield="value" placeholder="Bearer eyJhbGciOi…" spellcheck="false" autocomplete="off" aria-label="Header value" />
+          <button class="icon-btn basic" type="button" data-haction="basic" title="Basic auth helper (username / password)">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5.5" cy="10.5" r="2.5" /><path d="M7.3 8.7L13 3M11 5l1.5 1.5M9.5 6.5L11 8" /></svg>
+          </button>
           <button class="icon-btn reveal" type="button" data-haction="reveal" title="Show / hide value">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1.5 8S4 3.5 8 3.5 14.5 8 14.5 8 12 12.5 8 12.5 1.5 8 1.5 8z" /><circle cx="8" cy="8" r="2" /></svg>
           </button>
@@ -137,6 +143,34 @@
         </button>
       </div>
     </template>
+
+    <dialog id="basic-dialog" aria-labelledby="basic-title">
+      <form method="dialog">
+        <h2 id="basic-title">Basic authentication</h2>
+        <p class="dialog-hint">
+          Fills the header with <code>Basic base64(username:password)</code>. Base64 is an encoding, not encryption:
+          the password is stored as readable as the header value.
+        </p>
+        <label class="field">
+          <span class="label">Username</span>
+          <input type="text" id="basic-username" autocomplete="off" spellcheck="false" required />
+          <span class="hint error" id="basic-error"></span>
+        </label>
+        <label class="field">
+          <span class="label">Password</span>
+          <div class="value-wrap">
+            <input type="text" id="basic-password" class="masked" autocomplete="off" spellcheck="false" />
+            <button class="icon-btn reveal" type="button" id="basic-reveal" title="Show / hide password">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1.5 8S4 3.5 8 3.5 14.5 8 14.5 8 12 12.5 8 12.5 1.5 8 1.5 8z" /><circle cx="8" cy="8" r="2" /></svg>
+            </button>
+          </div>
+        </label>
+        <div class="dialog-actions">
+          <button class="btn" type="button" id="basic-cancel">Cancel</button>
+          <button class="btn primary" type="submit" value="apply">Apply</button>
+        </div>
+      </form>
+    </dialog>
 
     <script type="module" src="options.js"></script>
   </body>

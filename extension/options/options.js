@@ -9,6 +9,7 @@ import {
   normalizeConfig,
   saveConfig,
 } from '../lib/config.js';
+import { AUTH_HEADER, decodeBasicAuth, encodeBasicAuth } from '../lib/basic-auth.js';
 import { compileHostPattern, hostPatternToUrlRegex } from '../lib/pattern.js';
 
 const SENSITIVE = /auth|token|key|secret|cookie|session|password/i;
@@ -105,6 +106,7 @@ function refreshHeaderRow(row, header) {
   const masked = !isRemove && (override ? override === 'hidden' : SENSITIVE.test(header.name));
   valueInput.classList.toggle('masked', masked);
   $('[data-haction="reveal"]', row).hidden = isRemove;
+  $('[data-haction="basic"]', row).hidden = isRemove || !AUTH_HEADER.test(header.name.trim());
   row.classList.toggle('disabled', !header.enabled);
 }
 
@@ -237,6 +239,22 @@ function onRuleClick(e, rule, card) {
       refreshStatus(card, rule);
       return;
     }
+    case 'add-basic-auth': {
+      // Reuse the rule's Authorization header if there is one.
+      let header = rule.headers.find((h) => h.target === 'request' && /^authorization$/i.test(h.name.trim()));
+      const isNew = !header;
+      if (isNew) {
+        header = newHeader({ name: 'Authorization' });
+        rule.headers.push(header);
+        $('[data-role="headers"]', card).append(renderHeader(header));
+      }
+      editBasicAuth(card, rule, header).then((applied) => {
+        if (applied || !isNew) return;
+        rule.headers.splice(rule.headers.indexOf(header), 1);
+        $(`[data-id="${CSS.escape(header.id)}"]`, card).remove();
+      });
+      return;
+    }
   }
 
   const row = btn.closest('.header-row');
@@ -246,12 +264,74 @@ function onRuleClick(e, rule, card) {
     const masked = $('[data-hfield="value"]', row).classList.contains('masked');
     visibility.set(header.id, masked ? 'shown' : 'hidden');
     refreshHeaderRow(row, header);
+  } else if (btn.dataset.haction === 'basic') {
+    editBasicAuth(card, rule, header);
   } else if (btn.dataset.haction === 'delete') {
     rule.headers.splice(rule.headers.indexOf(header), 1);
     row.remove();
     save();
     refreshStatus(card, rule);
   }
+}
+
+// ---------------------------------------------------------------------------
+// Basic auth dialog
+
+const basicDialog = $('#basic-dialog');
+const basicForm = $('form', basicDialog);
+const basicUser = $('#basic-username');
+const basicPass = $('#basic-password');
+const basicError = $('#basic-error');
+
+/** The header being edited: { card, rule, header, resolve }. */
+let basicEditing = null;
+
+function finishBasicAuth(applied) {
+  basicEditing?.resolve(applied);
+  basicEditing = null;
+  basicPass.value = '';
+}
+
+basicUser.addEventListener('input', () => {
+  basicError.textContent = basicUser.value.includes(':') ? 'The username cannot contain ":"' : '';
+});
+$('#basic-reveal').addEventListener('click', () => basicPass.classList.toggle('masked'));
+$('#basic-cancel').addEventListener('click', () => {
+  finishBasicAuth(false);
+  basicDialog.close();
+});
+// Escape / cancel. Apply is handled on submit, which runs before the dialog closes.
+basicDialog.addEventListener('close', () => finishBasicAuth(false));
+
+basicForm.addEventListener('submit', (e) => {
+  if (basicUser.value.includes(':')) {
+    e.preventDefault();
+    basicUser.focus();
+    return;
+  }
+  if (!basicEditing) return;
+  const { card, rule, header } = basicEditing;
+  Object.assign(header, {
+    enabled: true,
+    target: 'request',
+    operation: 'set',
+    value: encodeBasicAuth(basicUser.value, basicPass.value),
+  });
+  $(`[data-id="${CSS.escape(header.id)}"]`, card).replaceWith(renderHeader(header));
+  save();
+  refreshStatus(card, rule);
+  finishBasicAuth(true);
+});
+
+/** Opens the dialog for `header`; resolves to true if a value was applied. */
+function editBasicAuth(card, rule, header) {
+  const current = decodeBasicAuth(header.value);
+  basicUser.value = current?.username ?? '';
+  basicPass.value = current?.password ?? '';
+  basicPass.classList.add('masked');
+  basicError.textContent = '';
+  basicDialog.showModal();
+  return new Promise((resolve) => (basicEditing = { card, rule, header, resolve }));
 }
 
 function focusRule(id) {

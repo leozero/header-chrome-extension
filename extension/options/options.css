@@ -171,6 +171,19 @@ body.globally-disabled #rules {
   padding-right: 34px;
 }
 
+.value-wrap:has(.basic:not([hidden])) input {
+  padding-right: 60px;
+}
+
+.value-wrap .basic {
+  position: absolute;
+  top: 50%;
+  right: 28px;
+  transform: translateY(-50%);
+  width: 26px;
+  height: 26px;
+}
+
 .value-wrap .reveal {
   position: absolute;
   top: 50%;
@@ -178,6 +191,11 @@ body.globally-disabled #rules {
   transform: translateY(-50%);
   width: 26px;
   height: 26px;
+}
+
+.headers-actions {
+  display: flex;
+  gap: 8px;
 }
 
 .add-header {
@@ -223,4 +241,40 @@ body.globally-disabled #rules {
 
 .masked {
   -webkit-text-security: disc;
+}
+
+dialog {
+  width: min(420px, calc(100vw - 32px));
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 20px 50px rgb(0 0 0 / 0.25);
+}
+
+dialog::backdrop {
+  background: rgb(0 0 0 / 0.4);
+}
+
+dialog h2 {
+  margin: 0 0 6px;
+  font-size: 16px;
+}
+
+dialog .field {
+  margin-bottom: 10px;
+}
+
+.dialog-hint {
+  margin: 0 0 14px;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 6px;
 }
