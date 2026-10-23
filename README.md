@@ -69,11 +69,15 @@ When several rules touch the same header, the rule **higher in the list wins**.
 ## Development
 
 ```bash
-npm test          # unit tests (node:test, no dependencies)
-npm run check     # manifest / version sanity checks
-npm run package   # dist/header-injector-vX.Y.Z.zip
-npm run icons     # regenerate icons
+npm test               # unit tests (node:test, no dependencies)
+npm run e2e            # end-to-end tests in Chrome for Testing
+npm run check          # manifest / version sanity checks
+npm run package        # dist/header-injector-vX.Y.Z.zip
+npm run icons          # regenerate icons
+npm run store-assets   # regenerate Chrome Web Store screenshots and promo tiles
 ```
+
+`e2e` and `store-assets` drive a real Chrome over the DevTools protocol. They need **Chrome for Testing** (branded Chrome no longer loads unpacked extensions from the command line): it is found automatically in the Playwright cache, or set `CHROME_PATH` (`npx @puppeteer/browsers install chrome@stable`).
 
 Layout:
 
@@ -87,7 +91,9 @@ extension/
   lib/basic-auth.js    # Basic auth encode / decode
   options/  popup/  ui/  icons/
 test/                  # unit tests
-scripts/               # packaging, versioning, icons
+scripts/               # packaging, versioning, icons, e2e, store assets and publishing
+store/                 # Chrome Web Store listing texts and images
+docs/PUBLISHING.md     # Chrome Web Store setup
 ```
 
 ## Releasing
@@ -104,7 +110,13 @@ This bumps `package.json` **and** `extension/manifest.json`, commits, tags `vX.Y
 
 **From GitHub**: *Actions → Release → Run workflow*, pick `patch` / `minor` / `major`.
 
-[`ci.yml`](.github/workflows/ci.yml) runs tests and builds the zip (as a downloadable artifact) on every push to `main` and every pull request.
+Once the Chrome Web Store is configured, the same workflow also uploads the zip to the Store and submits it for review: see [docs/PUBLISHING.md](docs/PUBLISHING.md).
+
+[`ci.yml`](.github/workflows/ci.yml) runs the unit and end-to-end tests and builds the zip (as a downloadable artifact) on every push to `main` and every pull request.
+
+## Privacy
+
+Rules stay in your browser, nothing is collected: see the [privacy policy](PRIVACY.md).
 
 ## License
 

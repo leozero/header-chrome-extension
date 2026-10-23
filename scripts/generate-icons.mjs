@@ -2,7 +2,7 @@
 // three "header lines", the first one prefixed by a key-like dot.
 // Usage: npm run icons
 
-import { writeFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { deflateSync } from 'node:zlib';
 
 const SIZES = [16, 32, 48, 128];
@@ -19,6 +19,7 @@ const bar = (x, y, x0, x1, yc, h) => inRoundRect(x, y, x0, yc - h / 2, x1, yc + 
 const dot = (x, y, cx, cy, r) => (x - cx) ** 2 + (y - cy) ** 2 <= r * r;
 
 function sample(x, y) {
+  if (x < 0 || x > 1 || y < 0 || y > 1) return null;
   if (!inRoundRect(x, y, 0.02, 0.02, 0.98, 0.98, 0.22)) return null;
   const white = [255, 255, 255];
   const h = 0.11;
@@ -31,14 +32,16 @@ function sample(x, y) {
   return [59 + (29 - 59) * t, 130 + (78 - 130) * t, 246 + (216 - 246) * t];
 }
 
-function render(size) {
+// `inset` is the transparent padding in pixels around the artwork.
+function render(size, inset = 0) {
+  const art = size - 2 * inset;
   const px = Buffer.alloc(size * size * 4);
   for (let py = 0; py < size; py++) {
     for (let pxl = 0; pxl < size; pxl++) {
       let r = 0, g = 0, b = 0, a = 0;
       for (let sy = 0; sy < SS; sy++) {
         for (let sx = 0; sx < SS; sx++) {
-          const c = sample((pxl + (sx + 0.5) / SS) / size, (py + (sy + 0.5) / SS) / size);
+          const c = sample((pxl - inset + (sx + 0.5) / SS) / art, (py - inset + (sy + 0.5) / SS) / art);
           if (!c) continue;
           r += c[0];
           g += c[1];
@@ -99,3 +102,9 @@ for (const size of SIZES) {
   writeFileSync(file, render(size));
   console.log(`wrote ${file.pathname}`);
 }
+
+// Chrome Web Store icon: 96x96 artwork with 16px transparent padding.
+const storeIcon = new URL('../store/images/store-icon-128.png', import.meta.url);
+mkdirSync(new URL('.', storeIcon), { recursive: true });
+writeFileSync(storeIcon, render(128, 16));
+console.log(`wrote ${storeIcon.pathname}`);

@@ -11,9 +11,12 @@
   },
   "scripts": {
     "test": "node --test",
+    "e2e": "node scripts/e2e.mjs",
     "check": "node scripts/check.mjs",
     "package": "node scripts/package.mjs",
     "icons": "node scripts/generate-icons.mjs",
+    "store-assets": "node scripts/store-assets.mjs",
+    "publish-store": "node scripts/publish-store.mjs",
     "version": "node scripts/sync-version.mjs && git add extension/manifest.json",
     "postversion": "git push --follow-tags"
   }

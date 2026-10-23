@@ -69,3 +69,17 @@ jobs:
             --verify-tag \
             --title "Header Injector $TAG" \
             --generate-notes
+
+      # Runs once the Chrome Web Store is configured (see docs/PUBLISHING.md):
+      # repository variables CWS_PUBLISHER_ID / CWS_EXTENSION_ID and credentials in secrets.
+      - name: Publish to the Chrome Web Store
+        if: vars.CWS_EXTENSION_ID != ''
+        env:
+          CWS_PUBLISHER_ID: ${{ vars.CWS_PUBLISHER_ID }}
+          CWS_EXTENSION_ID: ${{ vars.CWS_EXTENSION_ID }}
+          CWS_PUBLISH_TYPE: ${{ vars.CWS_PUBLISH_TYPE }}
+          CWS_SERVICE_ACCOUNT_KEY: ${{ secrets.CWS_SERVICE_ACCOUNT_KEY }}
+          CWS_CLIENT_ID: ${{ secrets.CWS_CLIENT_ID }}
+          CWS_CLIENT_SECRET: ${{ secrets.CWS_CLIENT_SECRET }}
+          CWS_REFRESH_TOKEN: ${{ secrets.CWS_REFRESH_TOKEN }}
+        run: npm run publish-store
