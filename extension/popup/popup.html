@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Header Injector</title>
+    <link rel="stylesheet" href="../ui/common.css" />
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header class="head">
+      <img src="../icons/icon-32.png" alt="" width="20" height="20" />
+      <h1>Header Injector</h1>
+      <label class="switch" title="Enable / disable all rules">
+        <input type="checkbox" id="global-enabled" /><span></span>
+      </label>
+    </header>
+
+    <div class="site">
+      <span class="label">Current site</span>
+      <span id="site-host" class="mono">—</span>
+    </div>
+
+    <ul id="rules" class="rules"></ul>
+    <p id="empty" class="empty" hidden>No rules configured yet.</p>
+
+    <footer class="foot">
+      <button class="btn" id="add-site-btn" type="button" hidden>+ Rule for this site</button>
+      <button class="btn primary" id="settings-btn" type="button">Settings</button>
+    </footer>
+
+    <template id="rule-tpl">
+      <li class="rule">
+        <label class="switch"><input type="checkbox" /><span></span></label>
+        <div class="rule-text">
+          <div class="rule-name"></div>
+          <div class="rule-meta mono"></div>
+        </div>
+        <span class="pill"></span>
+      </li>
+    </template>
+
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>
